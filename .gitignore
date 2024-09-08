@@ -145,4 +145,6 @@ dist
 PAS\ UTILE/
 config.json
 
+#PROD
+PROD/
 # End of https://www.toptal.com/developers/gitignore/api/node
