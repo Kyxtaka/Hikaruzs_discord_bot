@@ -3,6 +3,7 @@ import * as DiscordModule from 'discord.js';
 import fs from 'node:fs';
 import path from 'node:path'
 
+const PROD_MOD  = false; //true for production mode
 // Extend the Client class to include commands
 interface ExtendedClient extends DiscordModule.Client {
     commands: DiscordModule.Collection<string, any>;
@@ -34,20 +35,36 @@ client.on("messageCreate", (message:DiscordModule.Message) => {
 });
 
 //welcome message for new membe
-const WelcomeChannelID = GUILD_WELCOME_CHANNEL_IDS[0]
-client.on("guildMemberAdd", (member:any) => {
-    member.guild.channels.cache.get(WelcomeChannelID).send(`<@${member.id}> Bienvenue ici frérot`)
-});
+// const WelcomeChannelID = GUILD_WELCOME_CHANNEL_IDS[0]
+// client.on("guildMemberAdd", (member:any) => {
+//     member.guild.channels.cache.get(WelcomeChannelID).send(`<@${member.id}> Bienvenue ici frérot`)
+// });
 
 //Lis les fichier pour les commande dynamiquement
+let commandFilesExt: string;
+if (PROD_MOD) {
+    commandFilesExt = ".js";
+} else { 
+    commandFilesExt = ".ts";
+}
 client.commands = new DiscordModule.Collection<string, any>();
 const commandsPath = path.join(__dirname, '../commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(commandFilesExt));
 
-for(const file of commandFiles ) {
+// for(const file of commandFiles ) {
+//     const filePath = path.join(commandsPath, file);
+//     const command = require(filePath);
+//     client.commands.set(command.data.name, command);
+// }
+
+for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
     const command = require(filePath);
-    client.commands.set(command.data.name, command);
+    if ('data' in command && 'execute' in command) {
+        client.commands.set(command.data.name, command);
+    } else {
+        console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+    }
 }
 
 client.on('interactionCreate', async interaction => {

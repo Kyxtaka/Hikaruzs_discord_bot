@@ -1,24 +1,43 @@
-import { CommandInteraction, GuildMember, Permissions, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandInteraction, GuildMember, PermissionFlagsBits } from 'discord.js';
 
-function delay(milliseconds: number | undefined) {
+function delay(milliseconds: number): Promise<void> {
     return new Promise(resolve => {
         setTimeout(resolve, milliseconds);
     });
 }
 
-async function execute(interaction: CommandInteraction) {
+function getRandomInt(max: number): number {
+    return Math.floor(Math.random() * max);
+}
+
+export const data = new SlashCommandBuilder()
+    .setName('russian-wheel')
+    .setDescription("Set a chance for a user to get temporarily banned")
+    .addUserOption(option => 
+        option
+            .setName('target')
+            .setDescription('Choose a player')
+            .setRequired(true))
+    .addIntegerOption(option => 
+        option
+            .setName('time')
+            .setDescription('Ban duration')
+            .setRequired(true));
+
+export async function execute(interaction: CommandInteraction) {
     // Checking member permission and bot permission
-    const permissionMember = (interaction.member as GuildMember).permissions.has(PermissionFlagsBits.BanMembers); // bool ==> check if bot has permission to ban members
+    const permissionMember = (interaction.member as GuildMember).permissions.has(PermissionFlagsBits.BanMembers);
     if (!permissionMember) return interaction.reply("❌ | You don't have permission to use this command");
 
-    const targetUsertype = (interaction.options as any).getUser('target'); // targeted player (User type)
+    const targetUsertype = (interaction.options as any).getUser('target');
     if (!targetUsertype) return interaction.reply("❌ | No target user specified");
 
     if (targetUsertype.id === interaction.member?.user.id) {
-        return interaction.reply(`❌ | You cannot ban yourself!`); // can't ban yourself
+        return interaction.reply(`❌ | You cannot ban yourself!`);
     }
     if (targetUsertype.id === interaction.guild?.ownerId) {
-        return interaction.reply(`❌ | Can't ban the owner`); // can't ban owner
+        return interaction.reply(`❌ | Can't ban the owner`);
     }
 
     const requestUserRolePosition = (interaction.member as GuildMember).roles.highest.position;
@@ -37,13 +56,41 @@ async function execute(interaction: CommandInteraction) {
     }
 
     // Ban state initialization
-    const chooseStatusInt = getRandomInt(10); // initialize the default value of the ban status
-    const chooseStatus = (chooseStatusInt % 2) === 0;
+    const chooseStatusInt = getRandomInt(100);
+    let chooseStatus = (chooseStatusInt % 6) === 0;
     console.log(`${chooseStatusInt} : ${chooseStatus}`);
-}
 
-function getRandomInt(max: number): number {
-    return Math.floor(Math.random() * max);
-}
+    const iteration = getRandomInt(50);
+    console.log("nb iteration : " + iteration);
+    const banTime = interaction.options.get('time')?.value;
+    await interaction.reply("The wheel is wheeling...");
 
-export { execute };
+    try {
+        for (let i = iteration; i > 0; i--) {
+            chooseStatus = !chooseStatus;
+            if (i > 30) {
+                await interaction.editReply(`The wheel is wheeling.... \nDoes @${targetUsertype.username} will get banned? \nChoice state: ${chooseStatus}`);
+                await delay(200);
+            } else if (i > 15) {
+                await interaction.editReply(`The wheel is wheeling.... \nDoes @${targetUsertype.username} will get banned? \nChoice state: ${chooseStatus}`);
+                await delay(400);
+            } else if (i > 5) {
+                await interaction.editReply(`The wheel is wheeling.... \nDoes @${targetUsertype.username} will get banned? \nChoice state: ${chooseStatus}`);
+                await delay(600);
+            } else {
+                await interaction.editReply(`The wheel is wheeling.... \nDoes @${targetUsertype.username} will get banned? \nChoice state: ${chooseStatus}`);
+                await delay(800);
+            }
+        }
+
+        if (chooseStatus) {
+            await targetUser.ban({ reason: 'Russian Wheel decided' });
+            await interaction.editReply(`🔨 | @${targetUsertype.username} has been banned for ${banTime} minutes!`);
+        } else {
+            await interaction.editReply(`😅 | @${targetUsertype.username} got lucky and was not banned!`);
+        }
+    } catch (error) {
+        console.error(error);
+        await interaction.editReply('❌ | There was an error executing the command.');
+    }
+}

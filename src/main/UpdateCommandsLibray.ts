@@ -14,7 +14,7 @@ interface Command {
 
 const commands: any[] = [];
 const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
 const rest = new REST({ version: '9' }).setToken(DISCORD_TOKEN);
 
 for (const file of commandFiles) {
