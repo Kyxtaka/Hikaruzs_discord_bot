@@ -1,8 +1,8 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/main/index.ts', 'src/main/**/*.ts'], // Include all TypeScript files in src/main
-  outDir: 'dist/main/',
+  entry: ['src/**/**/*.ts'], // Include all TypeScript files in src/main
+  outDir: 'dist/',
   format: ['cjs'],
   minify: true,
   sourcemap: true,

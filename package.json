@@ -7,7 +7,7 @@
     "scripts": {
       "dev": "npx tsx watch src/main/index.ts",
       "start": "node dist/main/index.js",
-      "build": "tsup && npm run copy-files",
+      "build": "tsup",
       "copy-files": "xcopy src\\commands dist\\commands /E /I && xcopy src\\config\\config.json dist\\config\\ /E /I",
       "archive": "powershell Compress-Archive -Path dist\\* -DestinationPath dist\\project.zip"
     },
