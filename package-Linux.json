@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "dev": "npx tsx watch src/main/index.ts",
+    "start": "node dist/main/index.js",
+    "build": "tsup && npm run copy-files && npm run archive",
+    "copy-files": "cp -r src/main/commands dist/main/ && cp src/config/config.json dist/config/",
+    "archive": "cd dist && zip -r project.zip ."
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
+}
