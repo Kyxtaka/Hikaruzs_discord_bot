@@ -4,7 +4,7 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import * as config from '../config/config.json';
 
-const { DISCORD_TOKEN, OWNER_CLIENT_ID, GUILD_IDS } = config;
+const { DISCORD_TOKEN, BOT_CLIENT_ID, GUILD_IDS, GUILDS_INFO} = config;
 
 interface Command {
     data: {
@@ -23,9 +23,9 @@ for (const file of commandFiles) {
     commands.push(command.data.toJSON());
 }
 
-for (let i = 0; i < GUILD_IDS.length; i++) {
-    console.log(GUILD_IDS[i]);
-    rest.put(Routes.applicationGuildCommands(OWNER_CLIENT_ID, GUILD_IDS[i]), { body: commands })
-        .then(() => console.log(`Successfully registered application commands on ${GUILD_IDS[i]}'s server`))
+Object.keys(GUILDS_INFO).forEach((key) => {
+    console.log(key);
+    rest.put(Routes.applicationGuildCommands(BOT_CLIENT_ID, key), { body: commands })
+        .then(() => console.log(`Successfully registered application commands on ${key}'s server`))
         .catch(console.error);
-}
+});
