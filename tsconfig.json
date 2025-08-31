@@ -1,0 +1,19 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "strictNullChecks": true,
+            "skipLibCheck": true
+    },
+    "exclude": [
+        "tsup.config.ts"
+    ]
+}

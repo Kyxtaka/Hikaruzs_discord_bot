@@ -1,9 +1,17 @@
 {
-  "dependencies": {
-    "@discordjs/builders": "^0.15.0",
-    "@discordjs/rest": "^0.5.0",
-    "discord-api-types": "^0.33.5",
-    "discord.js": "^13.17.1",
-    "dotenv": "^16.0.1"
+    "devDependencies": {
+      "tsup": "^8.3.5",
+      "tsx": "^4.19.2",
+      "typescript": "^5.7.2"
+    },
+    "scripts": {
+      "dev": "npx tsx watch src/main/index.ts",
+      "start": "node dist/main/index.js",
+      "build": "tsup",
+      "copy-files": "xcopy src\\commands dist\\commands /E /I && xcopy src\\config\\config.json dist\\config\\ /E /I",
+      "archive": "powershell Compress-Archive -Path dist\\* -DestinationPath dist\\project.zip"
+    },
+    "dependencies": {
+      "discord.js": "^14.16.3"
+    }
   }
-}
