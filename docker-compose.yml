@@ -23,3 +23,5 @@ services:
       - /app/node_modules
     command: >
       sh -c "npm install && npx tsc && node ./dist/main/index.js"
+    mem_limit: 500M
+    memswap_limit: 3G
