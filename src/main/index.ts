@@ -29,7 +29,7 @@ client.on("ready", () => {
     } else {
         console.log('bot is running');
     }
-    doAlways(interval10seconds, [pingRandomGuildMember], "Do always has been called for client ready Event");
+    doAlways(1000, [pingRandomGuildMember], "Do always has been called for client ready Event");
 });
 
 //Do always function ==> call pingRandomGuildMember every 10 seconds / Default every 5 minutes
