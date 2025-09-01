@@ -1,4 +1,5 @@
 import { DISCORD_TOKEN, BOT_CLIENT_ID, GUILD_IDS,GUILDS_INFO} from "../config/config.json";
+import { config } from '../config/config';
 import * as DiscordModule from 'discord.js';
 import fs from 'node:fs';
 import path from 'node:path'
@@ -6,7 +7,7 @@ import { updateCommands } from "./UpdateCommandsLibray";
 import { interval10seconds, interval24, RLRM_GUILDS_ID } from "../constant/RLRM._constants";
 import { pingRandomGuildMember } from "../functions/RLRM_fucntions";
 
-const PROD_MOD  = false; //true for production mode ==> .js files, false for development mode ==> .ts files
+const PROD_MOD  = config.PROD_MODE; //true for production mode ==> .js files, false for development mode ==> .ts files
 
 // Extend the Client class to include commands
 interface ExtendedClient extends DiscordModule.Client {
@@ -23,7 +24,7 @@ const client: ExtendedClient = Object.assign(new DiscordModule.Client({
 }), { commands: new DiscordModule.Collection<string, any>() });
 
 //Bot ready to use
-client.on("ready", () => {
+client.on("clientReady", () => {
     if (client.user) {
         console.log(`bot is running as ${client.user.tag}`);
     } else {

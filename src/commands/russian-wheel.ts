@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, GuildMember, PermissionFlagsBits } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 function delay(milliseconds: number): Promise<void> {
     return new Promise(resolve => {
@@ -25,12 +25,12 @@ export const data = new SlashCommandBuilder()
             .setDescription('Ban duration')
             .setRequired(true));
 
-export async function execute(interaction: CommandInteraction) {
+export async function execute(interaction: ChatInputCommandInteraction) {
     // Checking member permission and bot permission
     const permissionMember = (interaction.member as GuildMember).permissions.has(PermissionFlagsBits.BanMembers);
     if (!permissionMember) return interaction.reply("❌ | You don't have permission to use this command");
 
-    const targetUsertype = (interaction.options as any).getUser('target');
+    const targetUsertype = interaction.options.getUser('target');
     if (!targetUsertype) return interaction.reply("❌ | No target user specified");
 
     if (targetUsertype.id === interaction.member?.user.id) {
