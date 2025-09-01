@@ -1,13 +1,25 @@
 version: "3.8"
 
+# services:
+#   hikaruzs-discord-bot:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     container_name: hikaruzs-discord-bot
+#     restart: unless-stopped
+#     volumes:
+#       - .:/app
+#       - /app/node_modules
+#     command: ["node", "./dist/main/index.js"]
+
 services:
   hikaruzs-discord-bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: node:20-alpine
     container_name: hikaruzs-discord-bot
     restart: unless-stopped
+    working_dir: /app
     volumes:
       - .:/app
       - /app/node_modules
-    command: ["node", "./dist/main/index.js"]
+    command: >
+      sh -c "npm install && npx tsc && node ./dist/main/index.js"
