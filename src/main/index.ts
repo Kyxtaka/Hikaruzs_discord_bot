@@ -2,6 +2,9 @@ import { DISCORD_TOKEN, BOT_CLIENT_ID, GUILD_IDS,GUILDS_INFO} from "../config/co
 import * as DiscordModule from 'discord.js';
 import fs from 'node:fs';
 import path from 'node:path'
+import { updateCommands } from "./UpdateCommandsLibray";
+import { interval10seconds, interval24, RLRM_GUILDS_ID } from "../constant/RLRM._constants";
+import { pingRandomGuildMember } from "../functions/RLRM_fucntions";
 
 const PROD_MOD  = false; //true for production mode ==> .js files, false for development mode ==> .ts files
 
@@ -19,46 +22,27 @@ const client: ExtendedClient = Object.assign(new DiscordModule.Client({
     ]
 }), { commands: new DiscordModule.Collection<string, any>() });
 
-const interval10seconds = 1000 * 10; // 10 seconds 
-const interval24 = 1000 * 60 * 60 * 24; // 24 hours
 //Bot ready to use
 client.on("ready", () => {
     if (client.user) {
-        console.log("I'm still alive2");
         console.log(`bot is running as ${client.user.tag}`);
     } else {
         console.log('bot is running');
     }
-    doAlways();
+    doAlways(1000, [pingRandomGuildMember], "Do always has been called for client ready Event");
 });
 
-//Ping random guild member
-function pingRandomGuildMember() {
-    const guild = client.guilds.resolve(GUILDS_INFO["982561842364833793"]["ID"]);
-    if (guild) {    
-        const members = guild.members.fetch();
-            members.then((members) => {
-                console.log(`members size: ${members.size}`);
-                let randomMember: DiscordModule.GuildMember | undefined = members.random();
-                while (randomMember && randomMember.user.bot) {
-                    console.log("random member is bot, retrying");
-                    randomMember = members.random();
-                }
-                if (randomMember) {
-                    console.log(`pinging ${randomMember.user.username}`);
-                    // user.send("Wesh la famille, je suis un bot, je te ping aléatoirement parce que t AFK\n OH TA GRAND MERE");
-                }
-            });
-            members.catch((error) => {
-                console.log(error)
-            });
-    }
-}
-
-function doAlways() {
-    console.log("Do always has been called");
-    pingRandomGuildMember();
-    setTimeout(() => {  doAlways(); }, interval10seconds);
+//Do always function ==> call pingRandomGuildMember every 10 seconds / Default every 5 minutes
+async function doAlways(
+    interval: number = 1000 * 60 * 5 , 
+    functions: Array<Function> = [], 
+    desc: string = "Do always has been called"
+) {
+    //print separator line on prompt '='
+    console.log("=".repeat(50));
+    console.log(desc);
+    functions.forEach((func) => {func() });
+    setTimeout(() => {  doAlways(interval, functions, desc); }, interval);
 }
 
 //Test reply message
@@ -88,30 +72,21 @@ client.on('interactionCreate', async interaction => {
 	}
 });
 
-
-
-//Lis les fichier pour les commande dynamiquement
-let commandFilesExt: string;
-if (PROD_MOD) {
-    commandFilesExt = ".js";
-} else { 
-    commandFilesExt = ".ts";
-}
-client.commands = new DiscordModule.Collection<string, any>();
-const commandsPath = path.join(__dirname, '../commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(commandFilesExt));
-
-// Load all commands
-for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    if ('data' in command && 'execute' in command) {
-        client.commands.set(command.data.name, command);
-    } else {
-        console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+//Load all commands + set them to the bot client
+function setCommands() {
+    let commandFilesExt: string;
+    if (PROD_MOD) {
+        commandFilesExt = ".js";
+    } else { 
+        commandFilesExt = ".ts";
     }
+    client.commands = new DiscordModule.Collection<string, any>();
+    const commandsPath = path.join(__dirname, '../commands');
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(commandFilesExt));
+    updateCommands(commandFiles,commandsPath, PROD_MOD);
 }
-
-client.login(DISCORD_TOKEN);
+export {client, ExtendedClient, PROD_MOD}; //Export Initialized constants
+setCommands(); //Set commands to the bot client
+client.login(DISCORD_TOKEN); //Bot login with token 
 
 
